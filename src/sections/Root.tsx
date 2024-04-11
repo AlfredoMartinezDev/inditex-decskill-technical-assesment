@@ -1,8 +1,18 @@
-import { Link } from "react-router-dom";
-import useAllPodcastsQuery from "../hooks/useAllPodcastsQuery";
+import { Link, useOutletContext } from "react-router-dom";
+import { PodcastsResponse } from "../interfaces";
+import { useEffect } from "react";
+
 
 const Root = () => {
-	const { allPodcastsData, isLoadingAllpodcasts, isErrorAllPodcasts } = useAllPodcastsQuery();
+	const [allPodcastsData, isLoadingAllpodcasts, isErrorAllPodcasts, handleLoadingState]: [PodcastsResponse, boolean, Error, (state: boolean) => boolean] = useOutletContext()
+
+	useEffect(() => {
+		if (isLoadingAllpodcasts) {
+			handleLoadingState(true)
+		} else {
+			handleLoadingState(false)
+		}
+	}, [handleLoadingState, isLoadingAllpodcasts])
 
 	if (isErrorAllPodcasts) {
 		throw new Error("There was an error loading all podcasts")
@@ -14,20 +24,18 @@ const Root = () => {
 
 	return (
 		<div>
-			<h1 className="font-serif text-4xl">Technical Assesment Inditex</h1>
-			<p>Test sans serif</p>
-			<ul>
+			<ul className="flex flex-wrap gap-4 py-4">
 				{
 					allPodcastsData?.feed?.entry?.map(podcast => {
 						return (
-							<li key={podcast.id.label} >
-								<Link to={`/podcast/${podcast.id.attributes["im:id"]}`}>
+							<li key={podcast.id.label} className="bg-[#384549] min-w-80 min-h-96 rounded-lg">
+								<Link to={`/podcast/${podcast.id.attributes["im:id"]}`} className="flex flex-col items-center gap-4 py-2">
 									<div>
-										<img src={podcast["im:image"][2].label} />
+										<img src={podcast["im:image"][2].label} className="rounded-lg" />
 									</div>
-									<div className="font-serif">
+									<div className="max-w-60 text-center text-[#DEE4E8] font-serif">
 										<p>{podcast?.title?.label}</p>
-										<div className="bg-black w-full my-2 h-px" />
+										<div className="bg-[#DEE4E8] w-full my-2 h-px" />
 										<p>Author: {podcast["im:artist"].label}</p>
 									</div>
 								</Link>
@@ -41,3 +49,4 @@ const Root = () => {
 }
 
 export default Root
+

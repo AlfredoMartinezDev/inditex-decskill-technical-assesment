@@ -1,18 +1,24 @@
-import { Link, useParams } from "react-router-dom"
+import { Outlet, useOutletContext, useParams } from "react-router-dom"
 import useSinglePodcastQuery from "../hooks/useSinglePodcastQuery"
-import { Episode, Podcast } from "../interfaces"
-import useAllPodcastsQuery from "../hooks/useAllPodcastsQuery"
-import { formatDate, formatMilliseconds } from "../utils"
+import { Podcast, PodcastsResponse } from "../interfaces"
+import { useEffect } from "react"
 
 
 
 const PodcastDetails = () => {
 	const params = useParams()
 
-	const { allPodcastsData, isLoadingAllpodcasts, isErrorAllPodcasts } = useAllPodcastsQuery();
+	const [allPodcastsData, isLoadingAllpodcasts, isErrorAllPodcasts, handleLoadingState]: [PodcastsResponse, boolean, Error, (state: boolean) => boolean] = useOutletContext()
 
 	const { singlePodcastData, singlePodcastIsLoading, singlePodcastError } = useSinglePodcastQuery(params.podcastId);
 
+	useEffect(() => {
+		if (isLoadingAllpodcasts || singlePodcastIsLoading) {
+			handleLoadingState(true)
+		} else {
+			handleLoadingState(false)
+		}
+	}, [handleLoadingState, isLoadingAllpodcasts, singlePodcastIsLoading])
 
 	if (isErrorAllPodcasts) {
 		throw new Error("There was an error loading all podcast")
@@ -33,7 +39,7 @@ const PodcastDetails = () => {
 		<div className="grid grid-cols-2 py-4">
 			{
 				podcastGeneralInfo && (
-					<div className="">
+					<div className="border rounded-lg border-[#A1B0B4] w-fit p-4 flex flex-col gap-4">
 						<div>
 							<img className="rounded-lg" src={podcastGeneralInfo['im:image'][2].label} height={170} width={170} />
 						</div>
@@ -53,51 +59,7 @@ const PodcastDetails = () => {
 					</div>
 				)
 			}
-			<div>
-				<div className='pb-4'>
-					<h2 className='text-3xl'>Episodes: {singlePodcastData?.results?.length}</h2>
-				</div>
-				<div className='border rounded-lg overflow-hidden'>
-					<table className="w-full">
-						<thead>
-							<tr>
-								<th className="text-lg text-left p-2">
-									Title
-								</th>
-								<th className="text-lg text-left p-2">
-									Date
-								</th>
-								<th className="text-lg text-left p-2">
-									Duration
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{
-								singlePodcastData?.results.slice(1, singlePodcastData?.results.length).map((result: Episode, index) => {
-
-									const releaseDate = formatDate(result.releaseDate)
-									const trackTime = formatMilliseconds(result.trackTimeMillis)
-
-									return (
-										<tr key={result.trackId} className={index % 2 ? 'bg-gray-100' : ''}>
-											<td className='p-2'>
-												<Link to={`/podcast/${params.podcastId}/episode/${result.trackId}`}>{result.trackName}</Link>
-											</td>
-											<td className='p-2'>
-												{releaseDate}
-											</td>
-											<td className='p-2'>
-												{trackTime}
-											</td>
-										</tr>
-									)
-								})
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
+			<Outlet context={[singlePodcastData]} />
 		</div>
 
 	)
