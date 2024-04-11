@@ -48,3 +48,36 @@ export const formatMilliseconds = (milliseconds:string) => {
     
     return formattedTime;
 }
+
+export function filterData(data:Podcast[], searchTerm: string, properties: Array<string>) {
+
+    const normalizedSearchTerm = searchTerm
+        .replace(/[^\w\s¨´`']/gi, '') 
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, '');
+
+
+    const lowerCaseSearchTerm = normalizedSearchTerm.toLowerCase();
+
+
+    const filteredData = data.filter(item => {
+        
+        return properties.some((property:string) => {
+
+            // @ts-expect-error I couldn't fix the error.
+            const itemValue:string = item[property].label;
+            
+            const normalizedItemValue = itemValue
+                .replace(/[¨´`']/g, '') 
+                .normalize("NFD") 
+                .replace(/[\u0300-\u036f]/g, '') 
+                .replace(/[^\w\s]/gi, '');
+
+            const lowerCaseItemValue = normalizedItemValue.toLowerCase();
+
+            return lowerCaseItemValue.includes(lowerCaseSearchTerm);
+        });
+    });
+
+    return filteredData;
+}
