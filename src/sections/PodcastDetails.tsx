@@ -36,7 +36,7 @@ const PodcastDetails = () => {
 	const podcastGeneralInfo = allPodcastsData?.feed?.entry?.find((podcast: Podcast) => podcast.id.attributes["im:id"] === params.podcastId)
 
 	return (
-		<div className="grid grid-cols-2 py-4">
+		<div className="grid grid-cols-1 gap-4 md:gap-0 md:grid-cols-2 py-4">
 			{
 				podcastGeneralInfo && (
 					<div className="border rounded-lg border-[#A1B0B4] w-fit p-4 flex flex-col gap-4">
@@ -59,7 +59,7 @@ const PodcastDetails = () => {
 					</div>
 				)
 			}
-			<Outlet context={[singlePodcastData]} />
+			<Outlet context={[singlePodcastData, singlePodcastIsLoading, singlePodcastError]} />
 		</div>
 
 	)

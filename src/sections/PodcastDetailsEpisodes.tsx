@@ -4,7 +4,16 @@ import { Link, useOutletContext, useParams } from 'react-router-dom'
 
 const PodcastDetailsEpisodes = () => {
 	const params = useParams()
-	const [singlePodcastData]: [PodcastEpisodes] = useOutletContext()
+	const [singlePodcastData, singlePodcastIsLoading, singlePodcastError]: [PodcastEpisodes, boolean, Error] = useOutletContext()
+
+
+	if (singlePodcastError) {
+		throw new Error("There was an error loading this podcast")
+	}
+
+	if (singlePodcastIsLoading) {
+		return <div />
+	}
 
 	const { results } = singlePodcastData
 
@@ -30,7 +39,7 @@ const PodcastDetailsEpisodes = () => {
 					</thead>
 					<tbody>
 						{
-							singlePodcastData.results.slice(1, results.length).map((result: Episode, index) => {
+							results.slice(1, results.length).map((result: Episode, index) => {
 
 								const releaseDate = formatDate(result.releaseDate)
 								const trackTime = formatMilliseconds(result.trackTimeMillis)

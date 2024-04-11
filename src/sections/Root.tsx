@@ -1,7 +1,8 @@
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { PodcastsResponse } from "../interfaces";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { filterData } from "../utils";
+import PodcastsLists from "../components/PodcastsLists";
 
 
 const Root = () => {
@@ -40,30 +41,11 @@ const Root = () => {
 	return (
 
 		<div>
-			<div className="py-2 flex justify-end gap-4">
+			<div className="py-2 flex justify-center md:justify-end gap-4">
 				<div className="text-[#384549] text-2xl font-serif">{filteredData.length}</div>
 				<input type="text" value={filter} onChange={handleFilter} placeholder="Filter podcasts" className="block w-56 border rounded-lg pl-2" />
 			</div>
-			<ul className="flex flex-wrap gap-4 py-4">
-				{
-					filteredData.map(podcast => {
-						return (
-							<li key={podcast.id.label} className="bg-[#384549] min-w-80 min-h-96 rounded-lg">
-								<Link to={`/podcast/${podcast.id.attributes["im:id"]}`} className="flex flex-col items-center gap-4 py-2">
-									<div>
-										<img src={podcast["im:image"][2].label} className="rounded-lg" />
-									</div>
-									<div className="max-w-60 text-center text-[#DEE4E8] font-serif">
-										<p>{podcast?.title?.label}</p>
-										<div className="bg-[#DEE4E8] w-full my-2 h-px" />
-										<p>Author: {podcast["im:artist"].label}</p>
-									</div>
-								</Link>
-							</li>
-						)
-					})
-				}
-			</ul>
+			<PodcastsLists podcasts={filteredData} />
 		</div>
 	)
 }
